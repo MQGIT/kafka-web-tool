@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Typography, Card, Select, message, Form, Input, Button, Space, Table, Tag, InputNumber, Tooltip } from 'antd'
-import { PlayCircleOutlined, PauseCircleOutlined, StopOutlined, CopyOutlined, DownloadOutlined } from '@ant-design/icons'
+import { Typography, Card, Select, message, Form, Input, Button, Space, Table, Tag, InputNumber, Tooltip, Modal, Popconfirm } from 'antd'
+import { PlayCircleOutlined, PauseCircleOutlined, StopOutlined, CopyOutlined, DownloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 // import { useAuthStore } from '../stores/authStore' // Removed for development
 
 const { Title } = Typography
@@ -22,6 +22,11 @@ const Consumers: React.FC = () => {
   const [consumerStatus, setConsumerStatus] = useState<'stopped' | 'running' | 'paused'>('stopped')
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null)
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [editingMessage, setEditingMessage] = useState<any>(null)
+  const [editForm] = Form.useForm()
+  const [editLoading, setEditLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
   // const { token } = useAuthStore() // Removed for development
 
   // Fetch connections on component mount
@@ -248,6 +253,111 @@ const Consumers: React.FC = () => {
     message.success(`Downloaded ${consumerMessages.length} messages`)
   }
 
+  const handleEditMessage = (record: any) => {
+    setEditingMessage(record)
+    editForm.setFieldsValue({
+      key: record.key,
+      value: record.value,
+      headers: record.headers ? JSON.stringify(record.headers, null, 2) : ''
+    })
+    setEditModalVisible(true)
+  }
+
+  const handleSaveEdit = async (values: any) => {
+    setEditLoading(true)
+    try {
+      // Validate headers JSON if provided
+      let headers = undefined
+      if (values.headers && values.headers.trim()) {
+        try {
+          headers = JSON.parse(values.headers)
+        } catch (e) {
+          message.error('Invalid JSON format in headers')
+          setEditLoading(false)
+          return
+        }
+      }
+
+      const updatedMessage = {
+        key: values.key?.trim(),
+        value: values.value,
+        headers
+      }
+
+      // Validate required fields
+      if (!updatedMessage.key) {
+        message.error('Message key is required')
+        setEditLoading(false)
+        return
+      }
+
+      const response = await fetch(`/api/v1/topics/connections/${selectedConnection}/topics/${selectedTopic}/messages`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedMessage),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        message.success('Message updated successfully')
+        setEditModalVisible(false)
+        setEditingMessage(null)
+        editForm.resetFields()
+      } else {
+        const errorText = await response.text()
+        console.error('Server error:', errorText)
+        message.error(`Failed to update message: ${response.status} ${response.statusText}`)
+      }
+    } catch (error) {
+      console.error('Error updating message:', error)
+      message.error('Network error: Failed to update message')
+    } finally {
+      setEditLoading(false)
+    }
+  }
+
+  const handleDeleteMessage = async (record: any) => {
+    const messageKey = `${record.partition}-${record.offset}`
+    setDeleteLoading(messageKey)
+
+    try {
+      if (!record.key) {
+        message.error('Cannot delete message without a key')
+        setDeleteLoading(null)
+        return
+      }
+
+      const params = new URLSearchParams()
+      params.append('key', record.key)
+      if (record.partition !== undefined) {
+        params.append('partition', record.partition.toString())
+      }
+
+      const response = await fetch(`/api/v1/topics/connections/${selectedConnection}/topics/${selectedTopic}/messages?${params.toString()}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        message.success('Message deleted successfully (tombstone sent)')
+      } else {
+        const errorText = await response.text()
+        console.error('Server error:', errorText)
+        message.error(`Failed to delete message: ${response.status} ${response.statusText}`)
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error)
+      message.error('Network error: Failed to delete message')
+    } finally {
+      setDeleteLoading(null)
+    }
+  }
+
   const messageColumns = [
     {
       title: 'Partition',
@@ -292,20 +402,51 @@ const Consumers: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 80,
+      width: 120,
       render: (_: any, record: any) => (
-        <Tooltip title="Copy message">
-          <Button
-            type="link"
-            icon={<CopyOutlined />}
-            size="small"
-            onClick={() => {
-              const messageText = `Topic: ${record.topic}\nPartition: ${record.partition}\nOffset: ${record.offset}\nKey: ${record.key || 'null'}\nValue: ${record.value}\nTimestamp: ${record.timestamp}`
-              navigator.clipboard.writeText(messageText)
-              message.success('Message copied to clipboard!')
-            }}
-          />
-        </Tooltip>
+        <Space size="small">
+          <Tooltip title="Copy message">
+            <Button
+              type="link"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => {
+                const messageText = `Topic: ${record.topic}\nPartition: ${record.partition}\nOffset: ${record.offset}\nKey: ${record.key || 'null'}\nValue: ${record.value}\nTimestamp: ${record.timestamp}`
+                navigator.clipboard.writeText(messageText)
+                message.success('Message copied to clipboard!')
+              }}
+            />
+          </Tooltip>
+          {record.key && (
+            <>
+              <Tooltip title="Edit message">
+                <Button
+                  type="link"
+                  icon={<EditOutlined />}
+                  size="small"
+                  onClick={() => handleEditMessage(record)}
+                />
+              </Tooltip>
+              <Tooltip title="Delete message (send tombstone)">
+                <Popconfirm
+                  title="Delete message"
+                  description="This will send a tombstone message. Are you sure?"
+                  onConfirm={() => handleDeleteMessage(record)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button
+                    type="link"
+                    icon={<DeleteOutlined />}
+                    size="small"
+                    danger
+                    loading={deleteLoading === `${record.partition}-${record.offset}`}
+                  />
+                </Popconfirm>
+              </Tooltip>
+            </>
+          )}
+        </Space>
       ),
     },
   ]
@@ -496,6 +637,72 @@ const Consumers: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* Edit Message Modal */}
+      <Modal
+        title="Edit Message"
+        open={editModalVisible}
+        onCancel={() => {
+          setEditModalVisible(false)
+          setEditingMessage(null)
+          editForm.resetFields()
+        }}
+        footer={null}
+        width={600}
+      >
+        <Form
+          form={editForm}
+          layout="vertical"
+          onFinish={handleSaveEdit}
+        >
+          <Form.Item
+            label="Message Key"
+            name="key"
+            rules={[{ required: true, message: 'Please enter message key' }]}
+          >
+            <Input placeholder="Message key" />
+          </Form.Item>
+
+          <Form.Item
+            label="Message Value"
+            name="value"
+            rules={[{ required: true, message: 'Please enter message value' }]}
+          >
+            <Input.TextArea
+              rows={6}
+              placeholder="Message value"
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Headers (JSON format)"
+            name="headers"
+          >
+            <Input.TextArea
+              rows={4}
+              placeholder='{"header1": "value1", "header2": "value2"}'
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit" loading={editLoading}>
+                Save Changes
+              </Button>
+              <Button
+                onClick={() => {
+                  setEditModalVisible(false)
+                  setEditingMessage(null)
+                  editForm.resetFields()
+                }}
+                disabled={editLoading}
+              >
+                Cancel
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   )
 }

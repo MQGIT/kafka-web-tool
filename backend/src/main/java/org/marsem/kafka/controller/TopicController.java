@@ -9,6 +9,7 @@ import org.marsem.kafka.model.TopicInfo;
 import org.marsem.kafka.model.KafkaMessage;
 import org.marsem.kafka.model.CreateTopicRequest;
 import org.marsem.kafka.service.TopicManagementService;
+import org.marsem.kafka.service.KafkaProducerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +41,12 @@ public class TopicController {
     private static final Logger logger = LoggerFactory.getLogger(TopicController.class);
 
     private final TopicManagementService topicService;
+    private final KafkaProducerService producerService;
 
     @Autowired
-    public TopicController(TopicManagementService topicService) {
+    public TopicController(TopicManagementService topicService, KafkaProducerService producerService) {
         this.topicService = topicService;
+        this.producerService = producerService;
     }
 
     /**
@@ -461,6 +465,122 @@ public class TopicController {
             return CompletableFuture.completedFuture(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to update topic configuration: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Edit a message by sending an updated version.
+     */
+    @PutMapping("/connections/{connectionId}/topics/{topicName}/messages")
+    @Operation(summary = "Edit message", description = "Send an updated version of a message to the topic")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Message updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid message data"),
+        @ApiResponse(responseCode = "404", description = "Connection not found"),
+        @ApiResponse(responseCode = "500", description = "Failed to update message")
+    })
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> editMessage(
+            @Parameter(description = "Connection ID") @PathVariable Long connectionId,
+            @Parameter(description = "Topic name") @PathVariable String topicName,
+            @Parameter(description = "Updated message") @RequestBody KafkaMessage updatedMessage) {
+
+        try {
+            // Validate that the message has a key (required for edit operations)
+            if (updatedMessage.getKey() == null || updatedMessage.getKey().trim().isEmpty()) {
+                logger.warn("Cannot edit message without a key");
+                return CompletableFuture.completedFuture(
+                    ResponseEntity.badRequest().build());
+            }
+
+            // Set the topic from the path parameter
+            updatedMessage.setTopic(topicName);
+
+            // Add metadata headers to indicate this is an updated message
+            Map<String, String> headers = updatedMessage.getHeaders();
+            if (headers == null) {
+                headers = new HashMap<>();
+                updatedMessage.setHeaders(headers);
+            }
+            headers.put("operation", "update");
+            headers.put("updated_at", Instant.now().toString());
+
+            logger.info("Editing message with key: {} in topic: {} using connection: {}",
+                       updatedMessage.getKey(), topicName, connectionId);
+
+            return producerService.sendMessage(connectionId, updatedMessage)
+                .thenApply(result -> {
+                    result.put("operation", "edit");
+                    result.put("message", "Message updated successfully");
+                    return ResponseEntity.ok(result);
+                })
+                .exceptionally(ex -> {
+                    logger.error("Failed to edit message", ex);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                });
+
+        } catch (Exception e) {
+            logger.error("Failed to edit message", e);
+            return CompletableFuture.completedFuture(
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        }
+    }
+
+    /**
+     * Delete a message by sending a tombstone.
+     */
+    @DeleteMapping("/connections/{connectionId}/topics/{topicName}/messages")
+    @Operation(summary = "Delete message", description = "Send a tombstone message to logically delete a message")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tombstone message sent successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "404", description = "Connection not found"),
+        @ApiResponse(responseCode = "500", description = "Failed to delete message")
+    })
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> deleteMessage(
+            @Parameter(description = "Connection ID") @PathVariable Long connectionId,
+            @Parameter(description = "Topic name") @PathVariable String topicName,
+            @Parameter(description = "Message key to delete") @RequestParam String key,
+            @Parameter(description = "Partition (optional)") @RequestParam(required = false) Integer partition) {
+
+        try {
+            // Validate that the key is provided
+            if (key == null || key.trim().isEmpty()) {
+                logger.warn("Cannot delete message without a key");
+                return CompletableFuture.completedFuture(
+                    ResponseEntity.badRequest().build());
+            }
+
+            // Create tombstone message (null value)
+            KafkaMessage tombstone = new KafkaMessage();
+            tombstone.setTopic(topicName);
+            tombstone.setKey(key);
+            tombstone.setValue(null); // Tombstone
+            tombstone.setPartition(partition);
+
+            // Add metadata headers
+            Map<String, String> headers = new HashMap<>();
+            headers.put("operation", "delete");
+            headers.put("deleted_at", Instant.now().toString());
+            tombstone.setHeaders(headers);
+
+            logger.info("Deleting message with key: {} in topic: {} using connection: {}",
+                       key, topicName, connectionId);
+
+            return producerService.sendMessage(connectionId, tombstone)
+                .thenApply(result -> {
+                    result.put("operation", "delete");
+                    result.put("message", "Tombstone message sent successfully");
+                    return ResponseEntity.ok(result);
+                })
+                .exceptionally(ex -> {
+                    logger.error("Failed to delete message", ex);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                });
+
+        } catch (Exception e) {
+            logger.error("Failed to delete message", e);
+            return CompletableFuture.completedFuture(
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
         }
     }
 }

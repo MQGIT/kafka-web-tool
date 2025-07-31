@@ -8,8 +8,10 @@ set -e
 # Configuration
 NAMESPACE="kafka-tool"
 APP_NAME="kafka-web-app-v2"
-BACKEND_IMAGE="kafka-web-app-v2:latest"
-REGISTRY="your-registry.com"  # Update with your container registry
+BACKEND_IMAGE="kafka-web-app-v2"
+FRONTEND_IMAGE="kafka-web-app-frontend"
+REGISTRY="rmqk8"  # DockerHub repository
+HOSTNAME="kafkawebtool.marsem.org"
 
 # Colors for output
 RED='\033[0;31m'
@@ -63,36 +65,38 @@ check_prerequisites() {
 # Build the application
 build_application() {
     log_info "Building the application..."
-    
+
+    # Build backend
+    log_info "Building backend..."
     cd backend
-    
-    # Build with Maven
-    log_info "Building with Maven..."
     mvn clean package -DskipTests
-    
-    # Build Docker image
-    log_info "Building Docker image..."
-    docker build -t $BACKEND_IMAGE .
-    
-    # Tag for registry if specified
-    if [ "$REGISTRY" != "your-registry.com" ]; then
-        docker tag $BACKEND_IMAGE $REGISTRY/$BACKEND_IMAGE
-        log_info "Tagged image for registry: $REGISTRY/$BACKEND_IMAGE"
-    fi
-    
+    docker build -t $REGISTRY/$BACKEND_IMAGE:latest .
     cd ..
+
+    # Build frontend
+    log_info "Building frontend..."
+    cd frontend
+    npm install
+    npm run build
+    docker build -t $REGISTRY/$FRONTEND_IMAGE:latest .
+    cd ..
+
     log_success "Application built successfully"
 }
 
 # Push to registry
 push_to_registry() {
-    if [ "$REGISTRY" != "your-registry.com" ]; then
-        log_info "Pushing image to registry..."
-        docker push $REGISTRY/$BACKEND_IMAGE
-        log_success "Image pushed to registry"
-    else
-        log_warning "No registry configured, skipping push"
-    fi
+    log_info "Pushing images to DockerHub registry..."
+
+    # Push backend image
+    log_info "Pushing backend image..."
+    docker push $REGISTRY/$BACKEND_IMAGE:latest
+
+    # Push frontend image
+    log_info "Pushing frontend image..."
+    docker push $REGISTRY/$FRONTEND_IMAGE:latest
+
+    log_success "Images pushed to registry"
 }
 
 # Create namespace
@@ -145,20 +149,10 @@ wait_for_infrastructure() {
 # Deploy application
 deploy_application() {
     log_info "Deploying application..."
-    
-    # Update image in deployment if using registry
-    if [ "$REGISTRY" != "your-registry.com" ]; then
-        sed -i.bak "s|kafka-web-app-v2:latest|$REGISTRY/$BACKEND_IMAGE|g" k8s/deployment.yaml
-    fi
-    
-    # Apply deployment
+
+    # Apply deployment (images are already correctly configured in k8s/deployment.yaml)
     kubectl apply -f k8s/deployment.yaml
-    
-    # Restore original deployment file if modified
-    if [ -f k8s/deployment.yaml.bak ]; then
-        mv k8s/deployment.yaml.bak k8s/deployment.yaml
-    fi
-    
+
     log_success "Application deployed"
 }
 
@@ -212,10 +206,10 @@ check_deployment() {
     
     echo ""
     echo "=== Application URLs ==="
-    echo "Frontend: https://kafkatool.marsem.org"
-    echo "Backend API: https://kafkatool.marsem.org/api/v1"
-    echo "Health Check: https://kafkatool.marsem.org/api/v1/health"
-    echo "API Documentation: https://kafkatool.marsem.org/api/v1/swagger-ui.html"
+    echo "Frontend: https://$HOSTNAME"
+    echo "Backend API: https://$HOSTNAME/api/v1"
+    echo "Health Check: https://$HOSTNAME/api/v1/health"
+    echo "API Documentation: https://$HOSTNAME/api/v1/swagger-ui.html"
     
     log_success "Deployment completed successfully!"
 }
@@ -237,7 +231,7 @@ main() {
     
     log_success "Deployment completed! 🚀"
     echo ""
-    echo "Access your application at: https://kafkatool.marsem.org"
+    echo "Access your application at: https://$HOSTNAME"
 }
 
 # Parse command line arguments
