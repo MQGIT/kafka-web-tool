@@ -269,32 +269,45 @@ npm run test:e2e           # End-to-end tests
 
 ## 🌐 **Deployment**
 
-### **Kubernetes Deployment (Recommended)**
+### **Two Deployment Options**
 
-The application includes an interactive deployment script for Kubernetes:
+Choose the deployment approach that fits your needs:
 
-```bash
-# Make script executable
-chmod +x deploy.sh
-
-# Run interactive deployment
-./deploy.sh
-```
-
-The script will prompt you for:
-- **Docker Registry**: Your DockerHub username or registry URL
-- **Hostname**: Your application domain (e.g., kafka-tool.your-domain.com)
-- **Namespace**: Kubernetes namespace (default: kafka-tool)
-
-### **Environment Variables (Skip Prompts)**
+#### 🏃‍♂️ **Quick Deploy** (Recommended for most users)
+Uses pre-built images for fast deployment:
 
 ```bash
-export REGISTRY="your-dockerhub-username"
+# Interactive deployment
+./quick-deploy.sh
+
+# Or with environment variables
 export HOSTNAME="kafka-tool.your-domain.com"
 export NAMESPACE="kafka-tool"
-
-./deploy.sh
+./quick-deploy.sh
 ```
+
+**Perfect for**: Production, demos, testing, quick setup
+
+#### 🔨 **Build & Deploy** (For developers)
+Builds new images from source code:
+
+```bash
+# Interactive build and deployment
+./build-deploy.sh
+
+# Or with environment variables
+export REGISTRY="your-dockerhub-username"
+export HOSTNAME="kafka-dev.your-domain.com"
+export BUILD_TAG="dev-$(date +%Y%m%d)"
+./build-deploy.sh
+```
+
+**Perfect for**: Development, custom modifications, testing changes
+
+### **Detailed Documentation**
+- **[📖 Deployment Overview](DEPLOYMENT_OVERVIEW.md)** - Choose the right approach
+- **[🏃‍♂️ Quick Deploy Guide](QUICK_DEPLOY_GUIDE.md)** - Fast deployment with pre-built images
+- **[🔨 Build & Deploy Guide](BUILD_DEPLOY_GUIDE.md)** - Development workflow and custom builds
 
 ### **Development**
 ```bash
