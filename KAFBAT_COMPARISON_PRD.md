@@ -128,21 +128,7 @@ Based on analysis of kafbat/kafka-ui GitHub issues, users are actively requestin
   - Configuration validation and templates
 - **Effort**: 3-4 weeks
 
-#### **2.2 Advanced Authentication & RBAC**
-- **Description**: Enterprise-grade authentication and authorization
-- **Features**:
-  - OAuth2 integration (GitHub, Google, GitLab)
-  - LDAP/Active Directory support
-  - Role-based access control (RBAC)
-  - User management interface
-- **Technical Requirements**:
-  - Spring Security OAuth2 configuration
-  - RBAC permission system
-  - User management backend
-  - Authentication UI components
-- **Effort**: 4-5 weeks
-
-#### **2.3 Metrics Dashboard**
+#### **2.2 Metrics Dashboard**
 - **Description**: Real-time Kafka cluster metrics and monitoring
 - **Features**:
   - Cluster overview dashboard
@@ -217,18 +203,7 @@ Based on analysis of kafbat/kafka-ui GitHub issues, users are actively requestin
   - Permission validation logic
 - **Effort**: 2-3 weeks
 
-#### **3.5 Enhanced Authentication (User-Requested)**
-- **Description**: Extended authentication options
-- **Features**:
-  - **Azure Entra ID SSO** (#1132): Azure Active Directory integration
-  - **Post-logout Redirect** (#1076): Configurable logout redirect URI
-  - Enhanced OAuth2 provider support
-  - **Share Groups View** (#1138): Kafka 4.0 share groups support
-- **Technical Requirements**:
-  - Azure AD OAuth2 integration
-  - Enhanced logout flow configuration
-  - Kafka 4.0 API support for share groups
-- **Effort**: 2-3 weeks
+
 
 #### **3.6 Audit Logging**
 - **Description**: Comprehensive activity tracking and audit trails
@@ -315,8 +290,16 @@ Based on analysis of kafbat/kafka-ui GitHub issues, users are actively requestin
 - **Month 4**: SerDe + ACL Management
 - **Month 5**: Audit Logging + Data Masking
 
-### **Phase 4: Polish & Optimization (Month 4-5)**
-- **Month 5**: Performance optimization, testing, documentation
+### **Phase 4: Enterprise Authentication & Security (Month 4-5)**
+- **Month 4-5**: Enterprise Authentication & RBAC
+  - OAuth2 integration (GitHub, Google, GitLab, Azure Entra ID)
+  - LDAP/Active Directory support
+  - Role-based access control (RBAC)
+  - User management interface
+  - Enhanced authentication options (#1132, #1076)
+
+### **Phase 5: Polish & Optimization (Month 5-6)**
+- **Month 5-6**: Performance optimization, testing, documentation
 - **Month 6**: Beta testing, bug fixes, final release
 
 ---
