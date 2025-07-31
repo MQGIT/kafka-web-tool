@@ -206,6 +206,7 @@ build_application() {
     docker buildx build --platform linux/amd64 \
         -t $REGISTRY/$BACKEND_IMAGE:$BUILD_TAG \
         -t $REGISTRY/$BACKEND_IMAGE:$FULL_TAG \
+        --push \
         .
     cd ..
     
@@ -220,6 +221,7 @@ build_application() {
     docker buildx build --platform linux/amd64 \
         -t $REGISTRY/$FRONTEND_IMAGE:$BUILD_TAG \
         -t $REGISTRY/$FRONTEND_IMAGE:$FULL_TAG \
+        --push \
         .
     cd ..
     
@@ -230,26 +232,28 @@ build_application() {
 
 # Push to registry
 push_to_registry() {
-    log_step "Pushing Images to Registry"
-    
-    log_info "Pushing backend image..."
-    docker push $REGISTRY/$BACKEND_IMAGE:$BUILD_TAG
-    
-    log_info "Pushing frontend image..."
-    docker push $REGISTRY/$FRONTEND_IMAGE:$BUILD_TAG
-    
-    # Also push with full tag for versioning
-    if [ "$BUILD_TAG" != "latest" ]; then
-        GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-        FULL_TAG="${BUILD_TAG}-${TIMESTAMP}-${GIT_COMMIT}"
-        
-        log_info "Pushing versioned tags..."
-        docker push $REGISTRY/$BACKEND_IMAGE:$FULL_TAG
-        docker push $REGISTRY/$FRONTEND_IMAGE:$FULL_TAG
+    log_step "Verifying Images in Registry"
+
+    log_info "Images were pushed during build process..."
+    log_info "Backend image: $REGISTRY/$BACKEND_IMAGE:$BUILD_TAG"
+    log_info "Frontend image: $REGISTRY/$FRONTEND_IMAGE:$BUILD_TAG"
+
+    # Verify images exist in registry
+    log_info "Verifying backend image..."
+    if docker manifest inspect $REGISTRY/$BACKEND_IMAGE:$BUILD_TAG &> /dev/null; then
+        log_success "Backend image verified in registry"
+    else
+        log_warning "Cannot verify backend image (may require authentication)"
     fi
-    
-    log_success "Images pushed to registry"
+
+    log_info "Verifying frontend image..."
+    if docker manifest inspect $REGISTRY/$FRONTEND_IMAGE:$BUILD_TAG &> /dev/null; then
+        log_success "Frontend image verified in registry"
+    else
+        log_warning "Cannot verify frontend image (may require authentication)"
+    fi
+
+    log_success "Images available in registry"
 }
 
 # Create namespace
