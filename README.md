@@ -63,6 +63,24 @@
 
 ---
 
+## 🎯 **Using Edit/Delete Messages**
+
+### **Edit Messages**
+1. Navigate to **Consumer** or **Message Browser** pages
+2. Find messages with keys (edit/delete buttons only appear for keyed messages)
+3. Click the **Edit** (✏️) button next to a message
+4. Modify the message content, headers, or key in the modal
+5. Click **Save Changes** (sends new message with same key)
+
+### **Delete Messages**
+1. Click the **Delete** (🗑️) button next to a message
+2. Confirm the action in the popup dialog
+3. A tombstone message (null value) is sent for logical deletion
+
+> **Note**: Edit and delete operations only work for messages that have keys, as required by Kafka's architecture. The original message remains in the log; edit sends a new version, delete sends a tombstone.
+
+---
+
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
@@ -242,16 +260,68 @@ npm run test:e2e           # End-to-end tests
 - 🆕 **Comprehensive monitoring & metrics**
 - 🆕 **Multi-tenant support**
 - 🆕 **API documentation with Swagger**
+- ✨ **Message Edit/Delete functionality** - Modify or logically delete messages
+- ✨ **Enhanced UI with loading states** - Better user experience
+- ✨ **JSON validation for headers** - Improved data integrity
 - 🆕 **Automated testing & CI/CD**
 
 ---
 
 ## 🌐 **Deployment**
 
+### **Two Deployment Options**
+
+Choose the deployment approach that fits your needs:
+
+#### 🏃‍♂️ **Quick Deploy** (Recommended for most users)
+Uses pre-built images for fast deployment:
+
+```bash
+# Interactive deployment
+./quick-deploy.sh
+
+# Or with environment variables
+export HOSTNAME="kafka-tool.your-domain.com"
+export NAMESPACE="kafka-tool"
+./quick-deploy.sh
+```
+
+**Perfect for**: Production, demos, testing, quick setup
+
+#### 🔨 **Build & Deploy** (For developers)
+Builds new images from source code:
+
+```bash
+# Interactive build and deployment
+./build-deploy.sh
+
+# Or with environment variables
+export REGISTRY="your-dockerhub-username"
+export HOSTNAME="kafka-dev.your-domain.com"
+export BUILD_TAG="dev-$(date +%Y%m%d)"
+./build-deploy.sh
+```
+
+**Perfect for**: Development, custom modifications, testing changes
+
+### **Detailed Documentation**
+- **[📖 Deployment Overview](DEPLOYMENT_OVERVIEW.md)** - Choose the right approach
+- **[🏃‍♂️ Quick Deploy Guide](QUICK_DEPLOY_GUIDE.md)** - Fast deployment with pre-built images
+- **[🔨 Build & Deploy Guide](BUILD_DEPLOY_GUIDE.md)** - Development workflow and custom builds
+
 ### **Development**
 ```bash
 docker-compose up -d
 ```
+
+## 🔐 **Default Login Credentials**
+
+When you first access the application, use these default credentials:
+
+- **Username**: `admin`
+- **Password**: `admin123`
+
+> ⚠️ **Security Note**: Change these default credentials in production environments by updating the application configuration.
 
 ### **Production (Kubernetes)**
 ```bash

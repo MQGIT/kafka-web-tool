@@ -5,11 +5,13 @@
 
 set -e
 
-# Configuration
-NAMESPACE="kafka-tool"
-APP_NAME="kafka-web-app-v2"
-BACKEND_IMAGE="kafka-web-app-v2:latest"
-REGISTRY="your-registry.com"  # Update with your container registry
+# Default Configuration (can be overridden by environment variables or command line)
+NAMESPACE="${NAMESPACE:-kafka-tool}"
+APP_NAME="${APP_NAME:-kafka-web-app-v2}"
+BACKEND_IMAGE="${BACKEND_IMAGE:-kafka-web-app-v2}"
+FRONTEND_IMAGE="${FRONTEND_IMAGE:-kafka-web-app-frontend}"
+REGISTRY="${REGISTRY:-your-registry}"
+HOSTNAME="${HOSTNAME:-your-hostname.com}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -21,6 +23,72 @@ NC='\033[0m' # No Color
 # Functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+# Configuration setup function
+setup_configuration() {
+    echo ""
+    echo "🚀 Kafka Web Tool Deployment Configuration"
+    echo "=========================================="
+    echo ""
+
+    # Check if configuration is already set
+    if [ "$REGISTRY" != "your-registry" ] && [ "$HOSTNAME" != "your-hostname.com" ]; then
+        log_info "Using existing configuration:"
+        echo "  Registry: $REGISTRY"
+        echo "  Hostname: $HOSTNAME"
+        echo "  Namespace: $NAMESPACE"
+        echo ""
+        read -p "Do you want to use this configuration? (y/n): " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            return 0
+        fi
+    fi
+
+    echo "Please provide your deployment configuration:"
+    echo ""
+
+    # Docker Registry
+    echo "📦 Docker Registry Configuration"
+    echo "Examples: your-dockerhub-username, gcr.io/your-project, your-registry.com"
+    read -p "Enter your Docker registry: " input_registry
+    if [ ! -z "$input_registry" ]; then
+        REGISTRY="$input_registry"
+    fi
+
+    # Hostname
+    echo ""
+    echo "🌐 Application Hostname"
+    echo "Example: kafka-tool.your-domain.com"
+    read -p "Enter your application hostname: " input_hostname
+    if [ ! -z "$input_hostname" ]; then
+        HOSTNAME="$input_hostname"
+    fi
+
+    # Namespace
+    echo ""
+    echo "🏷️  Kubernetes Namespace"
+    echo "Default: kafka-tool"
+    read -p "Enter Kubernetes namespace [$NAMESPACE]: " input_namespace
+    if [ ! -z "$input_namespace" ]; then
+        NAMESPACE="$input_namespace"
+    fi
+
+    echo ""
+    log_info "Configuration summary:"
+    echo "  Registry: $REGISTRY"
+    echo "  Hostname: $HOSTNAME"
+    echo "  Namespace: $NAMESPACE"
+    echo "  Backend Image: $REGISTRY/$BACKEND_IMAGE"
+    echo "  Frontend Image: $REGISTRY/$FRONTEND_IMAGE"
+    echo ""
+
+    # Validation
+    if [ "$REGISTRY" = "your-registry" ] || [ "$HOSTNAME" = "your-hostname.com" ]; then
+        log_error "Please provide valid registry and hostname values"
+        exit 1
+    fi
 }
 
 log_success() {
@@ -63,36 +131,38 @@ check_prerequisites() {
 # Build the application
 build_application() {
     log_info "Building the application..."
-    
+
+    # Build backend
+    log_info "Building backend..."
     cd backend
-    
-    # Build with Maven
-    log_info "Building with Maven..."
     mvn clean package -DskipTests
-    
-    # Build Docker image
-    log_info "Building Docker image..."
-    docker build -t $BACKEND_IMAGE .
-    
-    # Tag for registry if specified
-    if [ "$REGISTRY" != "your-registry.com" ]; then
-        docker tag $BACKEND_IMAGE $REGISTRY/$BACKEND_IMAGE
-        log_info "Tagged image for registry: $REGISTRY/$BACKEND_IMAGE"
-    fi
-    
+    docker build -t $REGISTRY/$BACKEND_IMAGE:latest .
     cd ..
+
+    # Build frontend
+    log_info "Building frontend..."
+    cd frontend
+    npm install
+    npm run build
+    docker build -t $REGISTRY/$FRONTEND_IMAGE:latest .
+    cd ..
+
     log_success "Application built successfully"
 }
 
 # Push to registry
 push_to_registry() {
-    if [ "$REGISTRY" != "your-registry.com" ]; then
-        log_info "Pushing image to registry..."
-        docker push $REGISTRY/$BACKEND_IMAGE
-        log_success "Image pushed to registry"
-    else
-        log_warning "No registry configured, skipping push"
-    fi
+    log_info "Pushing images to DockerHub registry..."
+
+    # Push backend image
+    log_info "Pushing backend image..."
+    docker push $REGISTRY/$BACKEND_IMAGE:latest
+
+    # Push frontend image
+    log_info "Pushing frontend image..."
+    docker push $REGISTRY/$FRONTEND_IMAGE:latest
+
+    log_success "Images pushed to registry"
 }
 
 # Create namespace
@@ -145,20 +215,10 @@ wait_for_infrastructure() {
 # Deploy application
 deploy_application() {
     log_info "Deploying application..."
-    
-    # Update image in deployment if using registry
-    if [ "$REGISTRY" != "your-registry.com" ]; then
-        sed -i.bak "s|kafka-web-app-v2:latest|$REGISTRY/$BACKEND_IMAGE|g" k8s/deployment.yaml
-    fi
-    
-    # Apply deployment
+
+    # Apply deployment (images are already correctly configured in k8s/deployment.yaml)
     kubectl apply -f k8s/deployment.yaml
-    
-    # Restore original deployment file if modified
-    if [ -f k8s/deployment.yaml.bak ]; then
-        mv k8s/deployment.yaml.bak k8s/deployment.yaml
-    fi
-    
+
     log_success "Application deployed"
 }
 
@@ -212,18 +272,26 @@ check_deployment() {
     
     echo ""
     echo "=== Application URLs ==="
-    echo "Frontend: https://kafkatool.marsem.org"
-    echo "Backend API: https://kafkatool.marsem.org/api/v1"
-    echo "Health Check: https://kafkatool.marsem.org/api/v1/health"
-    echo "API Documentation: https://kafkatool.marsem.org/api/v1/swagger-ui.html"
+    echo "Frontend: https://$HOSTNAME"
+    echo "Backend API: https://$HOSTNAME/api/v1"
+    echo "Health Check: https://$HOSTNAME/api/v1/health"
+    echo "API Documentation: https://$HOSTNAME/api/v1/swagger-ui.html"
+
+    echo ""
+    echo "=== Default Login Credentials ==="
+    echo "Username: admin"
+    echo "Password: admin123"
+    echo ""
+    echo "⚠️  Change these credentials in production!"
     
     log_success "Deployment completed successfully!"
 }
 
 # Main deployment function
 main() {
+    setup_configuration
     log_info "Starting deployment of $APP_NAME to $NAMESPACE namespace..."
-    
+
     check_prerequisites
     build_application
     push_to_registry
@@ -234,20 +302,45 @@ main() {
     deploy_ingress
     wait_for_deployment
     check_deployment
-    
+
     log_success "Deployment completed! 🚀"
     echo ""
-    echo "Access your application at: https://kafkatool.marsem.org"
+    echo "Access your application at: https://$HOSTNAME"
+    echo "Login with: admin / admin123"
+}
+
+# Deploy using latest images (skip build)
+deploy_latest() {
+    setup_configuration
+    log_info "Deploying using latest images from registry..."
+
+    check_prerequisites
+    create_namespace
+    deploy_infrastructure
+    wait_for_infrastructure
+    deploy_application
+    deploy_ingress
+    wait_for_deployment
+    check_deployment
+
+    log_success "Deployment completed using latest images! 🚀"
+    echo ""
+    echo "Access your application at: https://$HOSTNAME"
 }
 
 # Parse command line arguments
 case "${1:-deploy}" in
     "build")
+        setup_configuration
         check_prerequisites
         build_application
+        push_to_registry
         ;;
     "deploy")
         main
+        ;;
+    "deploy-latest")
+        deploy_latest
         ;;
     "status")
         check_deployment
@@ -258,11 +351,12 @@ case "${1:-deploy}" in
         log_success "Cleanup completed"
         ;;
     *)
-        echo "Usage: $0 {build|deploy|status|clean}"
-        echo "  build  - Build the application only"
-        echo "  deploy - Full deployment (default)"
-        echo "  status - Check deployment status"
-        echo "  clean  - Remove the deployment"
+        echo "Usage: $0 {build|deploy|deploy-latest|status|clean}"
+        echo "  build         - Build and push images only"
+        echo "  deploy        - Full deployment with build (default)"
+        echo "  deploy-latest - Deploy using existing latest images (skip build)"
+        echo "  status        - Check deployment status"
+        echo "  clean         - Remove the deployment"
         exit 1
         ;;
 esac

@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-web-app-config
+  namespace: kafka-tool
+  labels:
+    app: kafka-web-app-v2
+    component: config
+data:
+  # Application configuration
+  application.yml: |
+    server:
+      port: 8080
+      servlet:
+        context-path: /api/v1
+    
+    spring:
+      application:
+        name: kafka-web-app-v2
+      
+      datasource:
+        url: jdbc:postgresql://postgres:5432/kafka_web_app
+        username: ${DB_USERNAME:kafka_user}
+        password: ${DB_PASSWORD:kafka_password}
+        driver-class-name: org.postgresql.Driver
+        hikari:
+          maximum-pool-size: 20
+          minimum-idle: 5
+          connection-timeout: 30000
+          idle-timeout: 600000
+          max-lifetime: 1800000
+      
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        show-sql: false
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+            format_sql: true
+      
+      flyway:
+        enabled: false
+      
+      kafka:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        consumer:
+          group-id: kafka-web-app-v2
+          auto-offset-reset: earliest
+          enable-auto-commit: true
+        producer:
+          acks: all
+          retries: 3
+      
+      redis:
+        host: ${REDIS_HOST:redis}
+        port: ${REDIS_PORT:6379}
+        password: ${REDIS_PASSWORD:}
+        timeout: 2000ms
+        lettuce:
+          pool:
+            max-active: 8
+            max-idle: 8
+            min-idle: 0
+    
+    # Application specific configuration
+    app:
+      cors:
+        allowed-origins: https://kafkawebtool.marsem.org,http://localhost:3000
+        allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+        allowed-headers: "*"
+        allow-credentials: true
+      
+      kafka:
+        default-timeout: 30s
+        max-consumers: 100
+        max-producers: 50
+        message-batch-size: 1000
+    
+    # Logging configuration
+    logging:
+      level:
+        org.marsem.kafka: INFO
+        org.springframework.kafka: WARN
+        org.apache.kafka: WARN
+        org.springframework.security: WARN
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    
+    # Management endpoints
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus
+          base-path: /actuator
+      endpoint:
+        health:
+          show-details: when-authorized
+      metrics:
+        export:
+          prometheus:
+            enabled: true
