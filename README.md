@@ -269,6 +269,12 @@ npm run test:e2e           # End-to-end tests
 
 ## 🌐 **Deployment**
 
+### **⚠️ Before You Deploy**
+
+**IMPORTANT**: Update the configuration for your environment first!
+
+📋 **[Configuration Template](CONFIGURATION_TEMPLATE.md)** - Required configuration changes
+
 ### **Two Deployment Options**
 
 Choose the deployment approach that fits your needs:

@@ -11,7 +11,7 @@ NAMESPACE="${NAMESPACE:-kafka-tool}"
 APP_NAME="${APP_NAME:-kafka-web-app-v2}"
 BACKEND_IMAGE="${BACKEND_IMAGE:-kafka-web-app-v2}"
 FRONTEND_IMAGE="${FRONTEND_IMAGE:-kafka-web-app-frontend}"
-REGISTRY="${REGISTRY:-rmqk8}"
+REGISTRY="${REGISTRY:-your-registry}"
 HOSTNAME="${HOSTNAME:-your-hostname.com}"
 
 # Colors for output
@@ -83,7 +83,7 @@ setup_configuration() {
     # Docker Registry
     echo "📦 Docker Registry Configuration"
     echo "Examples: your-dockerhub-username, gcr.io/your-project, your-registry.com"
-    echo "Default: rmqk8 (official Kafka Web Tool images)"
+    echo "Default: your-registry (change to your Docker registry)"
     read -p "Enter your Docker registry [$REGISTRY]: " input_registry
     if [ ! -z "$input_registry" ]; then
         REGISTRY="$input_registry"
@@ -119,6 +119,13 @@ setup_configuration() {
     # Validation
     if [ "$HOSTNAME" = "your-hostname.com" ]; then
         log_error "Please provide a valid hostname"
+        log_error "See CONFIGURATION_TEMPLATE.md for setup instructions"
+        exit 1
+    fi
+
+    if [ "$REGISTRY" = "your-registry" ]; then
+        log_error "Please provide a valid Docker registry"
+        log_error "See CONFIGURATION_TEMPLATE.md for setup instructions"
         exit 1
     fi
 }

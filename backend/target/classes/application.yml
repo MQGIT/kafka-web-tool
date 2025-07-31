@@ -48,7 +48,7 @@ spring:
       retries: 3
   
   websocket:
-    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://kafkawebtool.marsem.org}
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://your-hostname.com}
 
 server:
   port: 8080
@@ -94,7 +94,7 @@ app:
       expiration: 86400000 # 24 hours
     
   cors:
-    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://kafkatool.marsem.org}
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://your-hostname.com}
     allowed-methods: GET,POST,PUT,DELETE,OPTIONS
     allowed-headers: "*"
     allow-credentials: true

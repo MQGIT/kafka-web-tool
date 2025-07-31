@@ -28,7 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/health")
 @Tag(name = "Health", description = "Application health and status")
-@CrossOrigin(origins = {"http://localhost:3000", "https://kafkawebtool.marsem.org"})
+@CrossOrigin(origins = {"http://localhost:3000", "https://your-hostname.com"})
 public class HealthController {
 
     private final DataSource dataSource;

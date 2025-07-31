@@ -71,6 +71,7 @@ git clone https://github.com/your-username/kafka-web-tool.git
 cd kafka-web-tool
 
 # 2. Set your configuration
+export REGISTRY="your-dockerhub-username"  # Your Docker registry
 export HOSTNAME="kafka-tool.your-domain.com"
 export NAMESPACE="kafka-tool"
 
@@ -107,7 +108,7 @@ Both scripts support the same configuration options but handle them differently:
 
 | Variable | Description | Quick Deploy Default | Build & Deploy Default |
 |----------|-------------|---------------------|------------------------|
-| `REGISTRY` | Docker registry | `rmqk8` (official) | `your-registry` (custom) |
+| `REGISTRY` | Docker registry | `your-registry` (required) | `your-registry` (required) |
 | `HOSTNAME` | Application hostname | Prompted | Prompted |
 | `NAMESPACE` | Kubernetes namespace | `kafka-tool` | `kafka-tool` |
 | `BUILD_TAG` | Image tag | `latest` | `latest` |

@@ -13,7 +13,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
-  - host: kafkawebtool.marsem.org
+  - host: your-hostname.com
     http:
       paths:
       # API routes - backend service
@@ -44,7 +44,7 @@ spec:
               number: 80
   tls:
   - hosts:
-    - kafkawebtool.marsem.org
+    - your-hostname.com
     secretName: kafka-web-app-tls
 
 

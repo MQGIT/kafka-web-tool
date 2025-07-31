@@ -69,7 +69,7 @@ chmod +x quick-deploy.sh
 ./quick-deploy.sh
 
 # The script will prompt you for:
-# - Docker registry (default: rmqk8)
+# - Docker registry (required - your DockerHub username or registry URL)
 # - Application hostname
 # - Kubernetes namespace (default: kafka-tool)
 ```
@@ -77,7 +77,7 @@ chmod +x quick-deploy.sh
 ### Step 3: Environment Variable Deployment
 ```bash
 # Set configuration via environment variables
-export REGISTRY="rmqk8"                    # Docker registry
+export REGISTRY="your-dockerhub-username"  # Your Docker registry
 export HOSTNAME="kafka-tool.example.com"   # Your domain
 export NAMESPACE="kafka-tool"               # Kubernetes namespace
 
@@ -91,7 +91,7 @@ export NAMESPACE="kafka-tool"               # Kubernetes namespace
 
 | Variable | Description | Default | Example |
 |----------|-------------|---------|---------|
-| `REGISTRY` | Docker registry | `rmqk8` | `your-dockerhub-username` |
+| `REGISTRY` | Docker registry | `your-registry` | `your-dockerhub-username` |
 | `HOSTNAME` | Application hostname | `your-hostname.com` | `kafka-tool.example.com` |
 | `NAMESPACE` | Kubernetes namespace | `kafka-tool` | `kafka-production` |
 | `BACKEND_IMAGE` | Backend image name | `kafka-web-app-v2` | `my-kafka-backend` |

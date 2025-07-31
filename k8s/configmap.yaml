@@ -66,7 +66,7 @@ data:
     # Application specific configuration
     app:
       cors:
-        allowed-origins: https://kafkawebtool.marsem.org,http://localhost:3000
+        allowed-origins: https://your-hostname.com,http://localhost:3000
         allowed-methods: GET,POST,PUT,DELETE,OPTIONS
         allowed-headers: "*"
         allow-credentials: true

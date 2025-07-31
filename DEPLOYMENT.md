@@ -131,15 +131,15 @@ The ingress is configured for SSL with Let's Encrypt. Ensure:
 ## Monitoring and Health Checks
 
 ### Health Endpoints
-- **Liveness**: `https://kafkawebtool.marsem.org/api/v1/health/live`
-- **Readiness**: `https://kafkawebtool.marsem.org/api/v1/health/ready`
-- **Detailed**: `https://kafkawebtool.marsem.org/api/v1/health/detailed`
+- **Liveness**: `https://your-hostname.com/api/v1/health/live`
+- **Readiness**: `https://your-hostname.com/api/v1/health/ready`
+- **Detailed**: `https://your-hostname.com/api/v1/health/detailed`
 
 ### Application URLs
-- **Frontend**: `https://kafkawebtool.marsem.org`
-- **API**: `https://kafkawebtool.marsem.org/api/v1`
-- **API Docs**: `https://kafkawebtool.marsem.org/api/v1/swagger-ui.html`
-- **Metrics**: `https://kafkawebtool.marsem.org/api/v1/actuator/prometheus`
+- **Frontend**: `https://your-hostname.com`
+- **API**: `https://your-hostname.com/api/v1`
+- **API Docs**: `https://your-hostname.com/api/v1/swagger-ui.html`
+- **Metrics**: `https://your-hostname.com/api/v1/actuator/prometheus`
 
 ### Monitoring Commands
 ```bash

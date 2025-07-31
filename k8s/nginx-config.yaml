@@ -14,7 +14,7 @@ data:
     
     server {
         listen 80;
-        server_name kafkawebtool.marsem.org;
+        server_name your-hostname.com;
         
         # Security headers
         add_header X-Frame-Options "SAMEORIGIN" always;

@@ -134,6 +134,7 @@ setup_configuration() {
     # Validation
     if [ "$REGISTRY" = "your-registry" ] || [ "$HOSTNAME" = "your-hostname.com" ]; then
         log_error "Please provide valid registry and hostname values"
+        log_error "See CONFIGURATION_TEMPLATE.md for setup instructions"
         exit 1
     fi
 }
