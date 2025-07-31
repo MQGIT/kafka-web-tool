@@ -5,13 +5,13 @@
 
 set -e
 
-# Configuration
-NAMESPACE="kafka-tool"
-APP_NAME="kafka-web-app-v2"
-BACKEND_IMAGE="kafka-web-app-v2"
-FRONTEND_IMAGE="kafka-web-app-frontend"
-REGISTRY="rmqk8"  # DockerHub repository
-HOSTNAME="kafkawebtool.marsem.org"
+# Default Configuration (can be overridden by environment variables or command line)
+NAMESPACE="${NAMESPACE:-kafka-tool}"
+APP_NAME="${APP_NAME:-kafka-web-app-v2}"
+BACKEND_IMAGE="${BACKEND_IMAGE:-kafka-web-app-v2}"
+FRONTEND_IMAGE="${FRONTEND_IMAGE:-kafka-web-app-frontend}"
+REGISTRY="${REGISTRY:-your-registry}"
+HOSTNAME="${HOSTNAME:-your-hostname.com}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -23,6 +23,72 @@ NC='\033[0m' # No Color
 # Functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+# Configuration setup function
+setup_configuration() {
+    echo ""
+    echo "🚀 Kafka Web Tool Deployment Configuration"
+    echo "=========================================="
+    echo ""
+
+    # Check if configuration is already set
+    if [ "$REGISTRY" != "your-registry" ] && [ "$HOSTNAME" != "your-hostname.com" ]; then
+        log_info "Using existing configuration:"
+        echo "  Registry: $REGISTRY"
+        echo "  Hostname: $HOSTNAME"
+        echo "  Namespace: $NAMESPACE"
+        echo ""
+        read -p "Do you want to use this configuration? (y/n): " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            return 0
+        fi
+    fi
+
+    echo "Please provide your deployment configuration:"
+    echo ""
+
+    # Docker Registry
+    echo "📦 Docker Registry Configuration"
+    echo "Examples: your-dockerhub-username, gcr.io/your-project, your-registry.com"
+    read -p "Enter your Docker registry: " input_registry
+    if [ ! -z "$input_registry" ]; then
+        REGISTRY="$input_registry"
+    fi
+
+    # Hostname
+    echo ""
+    echo "🌐 Application Hostname"
+    echo "Example: kafka-tool.your-domain.com"
+    read -p "Enter your application hostname: " input_hostname
+    if [ ! -z "$input_hostname" ]; then
+        HOSTNAME="$input_hostname"
+    fi
+
+    # Namespace
+    echo ""
+    echo "🏷️  Kubernetes Namespace"
+    echo "Default: kafka-tool"
+    read -p "Enter Kubernetes namespace [$NAMESPACE]: " input_namespace
+    if [ ! -z "$input_namespace" ]; then
+        NAMESPACE="$input_namespace"
+    fi
+
+    echo ""
+    log_info "Configuration summary:"
+    echo "  Registry: $REGISTRY"
+    echo "  Hostname: $HOSTNAME"
+    echo "  Namespace: $NAMESPACE"
+    echo "  Backend Image: $REGISTRY/$BACKEND_IMAGE"
+    echo "  Frontend Image: $REGISTRY/$FRONTEND_IMAGE"
+    echo ""
+
+    # Validation
+    if [ "$REGISTRY" = "your-registry" ] || [ "$HOSTNAME" = "your-hostname.com" ]; then
+        log_error "Please provide valid registry and hostname values"
+        exit 1
+    fi
 }
 
 log_success() {
@@ -216,8 +282,9 @@ check_deployment() {
 
 # Main deployment function
 main() {
+    setup_configuration
     log_info "Starting deployment of $APP_NAME to $NAMESPACE namespace..."
-    
+
     check_prerequisites
     build_application
     push_to_registry
@@ -228,7 +295,7 @@ main() {
     deploy_ingress
     wait_for_deployment
     check_deployment
-    
+
     log_success "Deployment completed! 🚀"
     echo ""
     echo "Access your application at: https://$HOSTNAME"

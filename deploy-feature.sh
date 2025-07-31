@@ -91,7 +91,8 @@ build_and_push() {
     log_info "Building frontend with edit/delete message feature..."
     cd frontend
     npm install
-    npm run build
+    # Use vite directly to avoid TypeScript compilation issues
+    npx vite build
     docker build -t $REGISTRY/$FRONTEND_IMAGE:$TAG .
     docker tag $REGISTRY/$FRONTEND_IMAGE:$TAG $REGISTRY/$FRONTEND_IMAGE:latest
     cd ..

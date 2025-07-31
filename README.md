@@ -63,6 +63,24 @@
 
 ---
 
+## 🎯 **Using Edit/Delete Messages**
+
+### **Edit Messages**
+1. Navigate to **Consumer** or **Message Browser** pages
+2. Find messages with keys (edit/delete buttons only appear for keyed messages)
+3. Click the **Edit** (✏️) button next to a message
+4. Modify the message content, headers, or key in the modal
+5. Click **Save Changes** (sends new message with same key)
+
+### **Delete Messages**
+1. Click the **Delete** (🗑️) button next to a message
+2. Confirm the action in the popup dialog
+3. A tombstone message (null value) is sent for logical deletion
+
+> **Note**: Edit and delete operations only work for messages that have keys, as required by Kafka's architecture. The original message remains in the log; edit sends a new version, delete sends a tombstone.
+
+---
+
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
@@ -242,11 +260,41 @@ npm run test:e2e           # End-to-end tests
 - 🆕 **Comprehensive monitoring & metrics**
 - 🆕 **Multi-tenant support**
 - 🆕 **API documentation with Swagger**
+- ✨ **Message Edit/Delete functionality** - Modify or logically delete messages
+- ✨ **Enhanced UI with loading states** - Better user experience
+- ✨ **JSON validation for headers** - Improved data integrity
 - 🆕 **Automated testing & CI/CD**
 
 ---
 
 ## 🌐 **Deployment**
+
+### **Kubernetes Deployment (Recommended)**
+
+The application includes an interactive deployment script for Kubernetes:
+
+```bash
+# Make script executable
+chmod +x deploy.sh
+
+# Run interactive deployment
+./deploy.sh
+```
+
+The script will prompt you for:
+- **Docker Registry**: Your DockerHub username or registry URL
+- **Hostname**: Your application domain (e.g., kafka-tool.your-domain.com)
+- **Namespace**: Kubernetes namespace (default: kafka-tool)
+
+### **Environment Variables (Skip Prompts)**
+
+```bash
+export REGISTRY="your-dockerhub-username"
+export HOSTNAME="kafka-tool.your-domain.com"
+export NAMESPACE="kafka-tool"
+
+./deploy.sh
+```
 
 ### **Development**
 ```bash
