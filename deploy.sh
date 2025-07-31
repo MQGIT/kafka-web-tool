@@ -301,14 +301,38 @@ main() {
     echo "Access your application at: https://$HOSTNAME"
 }
 
+# Deploy using latest images (skip build)
+deploy_latest() {
+    setup_configuration
+    log_info "Deploying using latest images from registry..."
+
+    check_prerequisites
+    create_namespace
+    deploy_infrastructure
+    wait_for_infrastructure
+    deploy_application
+    deploy_ingress
+    wait_for_deployment
+    check_deployment
+
+    log_success "Deployment completed using latest images! 🚀"
+    echo ""
+    echo "Access your application at: https://$HOSTNAME"
+}
+
 # Parse command line arguments
 case "${1:-deploy}" in
     "build")
+        setup_configuration
         check_prerequisites
         build_application
+        push_to_registry
         ;;
     "deploy")
         main
+        ;;
+    "deploy-latest")
+        deploy_latest
         ;;
     "status")
         check_deployment
@@ -319,11 +343,12 @@ case "${1:-deploy}" in
         log_success "Cleanup completed"
         ;;
     *)
-        echo "Usage: $0 {build|deploy|status|clean}"
-        echo "  build  - Build the application only"
-        echo "  deploy - Full deployment (default)"
-        echo "  status - Check deployment status"
-        echo "  clean  - Remove the deployment"
+        echo "Usage: $0 {build|deploy|deploy-latest|status|clean}"
+        echo "  build         - Build and push images only"
+        echo "  deploy        - Full deployment with build (default)"
+        echo "  deploy-latest - Deploy using existing latest images (skip build)"
+        echo "  status        - Check deployment status"
+        echo "  clean         - Remove the deployment"
         exit 1
         ;;
 esac
