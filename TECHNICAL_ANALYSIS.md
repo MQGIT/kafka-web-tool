@@ -2,11 +2,24 @@
 
 ## 📊 **Comprehensive Feature Comparison**
 
+### **🔥 User-Requested Features from GitHub Issues**
+
+| Issue # | Feature | Priority | Effort | User Demand |
+|---------|---------|----------|--------|-------------|
+| **#1203** | Message sorting by timestamp/offset | 🔴 High | 1-2 weeks | 👍 2 reactions |
+| **#1020** | Bulk message production | 🔴 High | 2-3 weeks | High demand |
+| **#1152** | Full-text search for entities | 🟡 Medium | 2-3 weeks | Medium demand |
+| **#1132** | Azure Entra ID SSO | 🟡 Medium | 2-3 weeks | Enterprise need |
+| **#1080** | Topic compression display | 🟢 Low | 1 week | Nice to have |
+| **#1073** | Hide internal topics by default | 🟢 Low | 1 week | UX improvement |
+| **#951** | MessagePack SerDe | 🟢 Low | 1-2 weeks | Niche use case |
+| **#914** | BSON SerDe | 🟢 Low | 1-2 weeks | Niche use case |
+
 ### **Current Feature Matrix**
 
 | Feature Category | Our Tool | Kafbat UI | Gap Level | Implementation Effort |
 |------------------|----------|-----------|-----------|----------------------|
-| **Message Management** | ✅ Full | ✅ Full | ✅ **PARITY** | N/A |
+| **Message Management** | 🟡 Basic | ✅ Advanced | 🟡 **MEDIUM** | 2-3 weeks |
 | **Topic Management** | ✅ Basic | ✅ Advanced | 🟡 **MEDIUM** | 2-3 weeks |
 | **Schema Registry** | ❌ None | ✅ Full | 🔴 **HIGH** | 4-5 weeks |
 | **Consumer Groups** | ❌ None | ✅ Full | 🔴 **HIGH** | 3-4 weeks |

@@ -33,6 +33,43 @@ This PRD outlines the roadmap to enhance our Kafka Web Tool to match the feature
 
 ---
 
+## 🔥 **User-Requested Features from GitHub Issues**
+
+Based on analysis of kafbat/kafka-ui GitHub issues, users are actively requesting these features:
+
+### **📊 Message Management Enhancements**
+- **#1203**: Sort messages by timestamp/offset in message view
+- **#1020**: Support for sending multiple (bulk) messages
+- **#318**: Message replay functionality with editing capabilities
+- **#323**: Copy to clipboard for key/value/headers
+- **#688**: Download messages as CSV/JSON
+- **#770**: Store saved filters on filesystem
+
+### **🔍 Search & Discovery**
+- **#1152**: Full-text search for Kafka Connect connectors and entities
+- **#1073**: Hide internal topics by default (UX improvement)
+- **#741**: Configurable truncation length of topic & schema names
+- **#1080**: Display compression type of Kafka topics
+
+### **🔐 Authentication & Security**
+- **#1132**: Azure Entra ID SSO integration
+- **#1076**: Add postLogoutRedirectUri property
+- **#1193**: Audit log enabled by using host variables
+
+### **🔧 Advanced Features**
+- **#1138**: Share Groups View (Kafka 4.0 support)
+- **#951**: MessagePack SerDe support
+- **#914**: BSON SerDe support
+- **#868**: JSON Schema references support
+- **#1171**: JSON logging capability
+
+### **🎯 Performance & UX**
+- **#1162**: Optimize text filtering to consume fewer messages
+- **#1009**: Do not auto-refresh read-only data
+- **#1203**: Add sorting by timestamp/offset in message view
+
+---
+
 ## 🎯 **Target Feature Parity with Kafbat UI**
 
 ### **🔥 Priority 1: Core Infrastructure (Months 1-2)**
@@ -121,10 +158,28 @@ This PRD outlines the roadmap to enhance our Kafka Web Tool to match the feature
 
 ### **⚡ Priority 3: Enterprise Features (Months 3-4)**
 
-#### **3.1 Advanced Serialization (SerDe)**
+#### **3.1 Advanced Message Management (User-Requested Features)**
+- **Description**: Enhanced message operations based on GitHub issues
+- **Features**:
+  - **Message Sorting** (#1203): Sort by timestamp/offset in message view
+  - **Bulk Message Production** (#1020): Send multiple messages at once
+  - **Message Replay** (#318): Replay messages from topics with editing
+  - **Message Import/Export** (#318): Load from file, copy to clipboard
+  - **Message Download** (#688): Export messages as CSV/JSON
+  - **Copy to Clipboard** (#323): Copy key/value/headers individually
+- **Technical Requirements**:
+  - Enhanced message table with sorting capabilities
+  - Bulk message production API and UI
+  - File upload/download functionality
+  - Clipboard integration
+- **Effort**: 3-4 weeks
+
+#### **3.2 Advanced Serialization (SerDe)**
 - **Description**: Pluggable serialization/deserialization system
 - **Features**:
   - Built-in SerDe for common formats (Avro, Protobuf, JSON)
+  - **MessagePack Support** (#951): MessagePack serialization
+  - **BSON Support** (#914): BSON serialization
   - Custom SerDe plugin support
   - AWS Glue integration
   - Message format auto-detection
@@ -134,7 +189,22 @@ This PRD outlines the roadmap to enhance our Kafka Web Tool to match the feature
   - Message format detection algorithms
 - **Effort**: 3-4 weeks
 
-#### **3.2 ACL Management**
+#### **3.3 Enhanced Search & Filtering (User-Requested)**
+- **Description**: Advanced search capabilities across entities
+- **Features**:
+  - **Full-text Search** (#1152): Search Kafka Connect connectors and entities
+  - **Advanced Topic Filtering**: Hide internal topics by default (#1073)
+  - **Saved Filters** (#770): Store filters on filesystem vs memory
+  - **Configurable UI** (#741): Configurable truncation of topic/schema names
+  - **Topic Compression Display** (#1080): Show compression type of topics
+- **Technical Requirements**:
+  - Search indexing system
+  - Filter persistence layer
+  - UI configuration management
+  - Topic metadata enhancement
+- **Effort**: 2-3 weeks
+
+#### **3.4 ACL Management**
 - **Description**: Kafka Access Control List management
 - **Features**:
   - ACL listing and visualization
@@ -147,7 +217,20 @@ This PRD outlines the roadmap to enhance our Kafka Web Tool to match the feature
   - Permission validation logic
 - **Effort**: 2-3 weeks
 
-#### **3.3 Audit Logging**
+#### **3.5 Enhanced Authentication (User-Requested)**
+- **Description**: Extended authentication options
+- **Features**:
+  - **Azure Entra ID SSO** (#1132): Azure Active Directory integration
+  - **Post-logout Redirect** (#1076): Configurable logout redirect URI
+  - Enhanced OAuth2 provider support
+  - **Share Groups View** (#1138): Kafka 4.0 share groups support
+- **Technical Requirements**:
+  - Azure AD OAuth2 integration
+  - Enhanced logout flow configuration
+  - Kafka 4.0 API support for share groups
+- **Effort**: 2-3 weeks
+
+#### **3.6 Audit Logging**
 - **Description**: Comprehensive activity tracking and audit trails
 - **Features**:
   - User action logging
@@ -160,7 +243,7 @@ This PRD outlines the roadmap to enhance our Kafka Web Tool to match the feature
   - Audit log viewer UI
 - **Effort**: 2-3 weeks
 
-#### **3.4 Data Masking & Security**
+#### **3.7 Data Masking & Security**
 - **Description**: Sensitive data protection and compliance features
 - **Features**:
   - Field-level data masking
