@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
-  namespace: kafka-tool
+  namespace: {{NAMESPACE}}
   labels:
     app: redis
     component: cache
@@ -63,7 +63,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: kafka-tool
+  namespace: {{NAMESPACE}}
   labels:
     app: redis
     component: cache

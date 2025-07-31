@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kafka-web-app-backend
-  namespace: kafka-tool
+  namespace: {{NAMESPACE}}
   labels:
     app: kafka-web-app-v2
     component: backend
@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: rmqk8/kafka-web-app-v2:latest
+        image: {{REGISTRY}}/{{BACKEND_IMAGE}}:{{IMAGE_TAG}}
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -108,7 +108,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kafka-web-app-backend
-  namespace: kafka-tool
+  namespace: {{NAMESPACE}}
   labels:
     app: kafka-web-app-v2
     component: backend
@@ -128,7 +128,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kafka-web-app-frontend
-  namespace: kafka-tool
+  namespace: {{NAMESPACE}}
   labels:
     app: kafka-web-app-v2
     component: frontend
@@ -153,7 +153,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: rmqk8/kafka-web-app-frontend:latest
+        image: {{REGISTRY}}/{{FRONTEND_IMAGE}}:{{IMAGE_TAG}}
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -187,7 +187,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kafka-web-app-frontend
-  namespace: kafka-tool
+  namespace: {{NAMESPACE}}
   labels:
     app: kafka-web-app-v2
     component: frontend

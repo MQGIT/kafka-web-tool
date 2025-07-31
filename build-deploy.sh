@@ -29,6 +29,19 @@ log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
 
+# Template replacement function
+replace_template_vars() {
+    local template_file="$1"
+    local image_tag="${2:-$BUILD_TAG}"
+    sed -e "s/{{NAMESPACE}}/$NAMESPACE/g" \
+        -e "s/{{HOSTNAME}}/$HOSTNAME/g" \
+        -e "s/{{REGISTRY}}/$REGISTRY/g" \
+        -e "s/{{BACKEND_IMAGE}}/$BACKEND_IMAGE/g" \
+        -e "s/{{FRONTEND_IMAGE}}/$FRONTEND_IMAGE/g" \
+        -e "s/{{IMAGE_TAG}}/$image_tag/g" \
+        "$template_file"
+}
+
 log_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
@@ -274,19 +287,16 @@ deploy_infrastructure() {
     log_step "Deploying Infrastructure"
     
     log_info "Deploying ConfigMap..."
-    sed -e "s/namespace: kafka-tool/namespace: $NAMESPACE/g" \
-        -e "s/kafkawebtool.marsem.org/$HOSTNAME/g" \
-        -e "s/ddl-auto: validate/ddl-auto: update/g" \
-        k8s/configmap.yaml | kubectl apply -f -
-    
+    replace_template_vars k8s/configmap.yaml | kubectl apply -f -
+
     log_info "Deploying Secrets..."
-    sed "s/namespace: kafka-tool/namespace: $NAMESPACE/g" k8s/secret.yaml | kubectl apply -f -
-    
+    replace_template_vars k8s/secret.yaml | kubectl apply -f -
+
     log_info "Deploying PostgreSQL..."
-    sed "s/namespace: kafka-tool/namespace: $NAMESPACE/g" k8s/postgres.yaml | kubectl apply -f -
-    
+    replace_template_vars k8s/postgres.yaml | kubectl apply -f -
+
     log_info "Deploying Redis..."
-    sed "s/namespace: kafka-tool/namespace: $NAMESPACE/g" k8s/redis.yaml | kubectl apply -f -
+    replace_template_vars k8s/redis.yaml | kubectl apply -f -
     
     log_success "Infrastructure deployed"
 }
@@ -310,9 +320,7 @@ deploy_application() {
     
     # Update deployment with new image tags
     log_info "Deploying backend and frontend with new images..."
-    sed -e "s/namespace: kafka-tool/namespace: $NAMESPACE/g" \
-        -e "s/:latest/:$BUILD_TAG/g" \
-        k8s/deployment.yaml | kubectl apply -f -
+    replace_template_vars k8s/deployment.yaml "$BUILD_TAG" | kubectl apply -f -
     
     log_success "Application deployed"
 }
@@ -321,9 +329,7 @@ deploy_application() {
 deploy_ingress() {
     log_step "Deploying Ingress"
     
-    sed -e "s/namespace: kafka-tool/namespace: $NAMESPACE/g" \
-        -e "s/kafkawebtool.marsem.org/$HOSTNAME/g" \
-        k8s/ingress.yaml | kubectl apply -f -
+    replace_template_vars k8s/ingress.yaml | kubectl apply -f -
     
     log_success "Ingress deployed"
 }

@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: kafka-web-app-ingress
-  namespace: kafka-tool
+  namespace: {{NAMESPACE}}
   labels:
     app: kafka-web-app-v2
     component: ingress
@@ -13,7 +13,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
-  - host: your-hostname.com
+  - host: {{HOSTNAME}}
     http:
       paths:
       # API routes - backend service
@@ -44,7 +44,7 @@ spec:
               number: 80
   tls:
   - hosts:
-    - your-hostname.com
+    - {{HOSTNAME}}
     secretName: kafka-web-app-tls
 
 
