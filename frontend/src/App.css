@@ -1,0 +1,148 @@
+/* App-specific styles */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.app-logo-icon {
+  margin-right: 12px;
+  font-size: 24px;
+}
+
+.app-user-menu {
+  color: white;
+}
+
+.app-sidebar {
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+
+.app-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dashboard specific styles */
+.dashboard-stats {
+  margin-bottom: 24px;
+}
+
+.dashboard-chart {
+  height: 300px;
+}
+
+/* Connection form styles */
+.connection-form {
+  max-width: 600px;
+}
+
+.connection-test-button {
+  margin-left: 8px;
+}
+
+/* Topic list styles */
+.topic-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.topic-partition-count {
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.topic-replication-factor {
+  font-weight: 600;
+  color: #52c41a;
+}
+
+/* Message viewer styles */
+.message-viewer {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 16px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message-header {
+  background: #f0f0f0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Producer form styles */
+.producer-form {
+  max-width: 800px;
+}
+
+.message-input {
+  min-height: 120px;
+}
+
+/* Consumer group styles */
+.consumer-group-card {
+  margin-bottom: 16px;
+}
+
+.consumer-lag {
+  font-weight: 600;
+}
+
+.consumer-lag.high {
+  color: #ff4d4f;
+}
+
+.consumer-lag.medium {
+  color: #faad14;
+}
+
+.consumer-lag.low {
+  color: #52c41a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .dashboard-chart {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 16px;
+  }
+  
+  .app-logo {
+    font-size: 18px;
+  }
+  
+  .topic-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .connection-form,
+  .producer-form {
+    max-width: 100%;
+  }
+}

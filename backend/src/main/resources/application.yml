@@ -1,0 +1,163 @@
+spring:
+  application:
+    name: kafka-web-app-v2
+  
+  profiles:
+    active: development
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kafka_web_app
+    username: kafka_user
+    password: kafka_password
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  flyway:
+    enabled: false
+  
+  security:
+    user:
+      name: disabled
+      password: disabled
+
+  # TEMPORARILY DISABLED FOR TESTING
+  # oauth2:
+  #     resourceserver:
+  #       jwt:
+  #         issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/auth/realms/kafka-web-app}
+  
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: kafka-web-app-v2
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+  
+  websocket:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://kafkawebtool.marsem.org}
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+  compression:
+    enabled: true
+  http2:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    org.marsem.kafka: INFO
+    org.springframework.kafka: INFO
+    org.apache.kafka: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+app:
+  kafka:
+    default-timeout: 30s
+    max-consumers: 100
+    max-producers: 50
+    message-batch-size: 1000
+  
+  security:
+    jwt:
+      secret: ${JWT_SECRET:your-secret-key-change-in-production}
+      expiration: 86400000 # 24 hours
+    
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://kafkatool.marsem.org}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: development
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kafka_web_app_dev
+  
+  jpa:
+    show-sql: true
+  
+  kafka:
+    bootstrap-servers: localhost:9092
+
+logging:
+  level:
+    org.marsem.kafka: DEBUG
+    org.springframework.kafka: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+  
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    security:
+      protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+    sasl:
+      mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+      jaas:
+        config: ${KAFKA_SASL_JAAS_CONFIG}
+
+logging:
+  level:
+    org.marsem.kafka: INFO
+    org.springframework.kafka: WARN
+    org.apache.kafka: WARN
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  
+  flyway:
+    enabled: false
