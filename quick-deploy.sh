@@ -256,7 +256,14 @@ check_deployment() {
     echo "Backend API: https://$HOSTNAME/api/v1"
     echo "Health Check: https://$HOSTNAME/api/v1/actuator/health"
     echo "API Documentation: https://$HOSTNAME/api/v1/swagger-ui.html"
-    
+
+    echo ""
+    echo "=== Default Login Credentials ==="
+    echo "Username: admin"
+    echo "Password: admin123"
+    echo ""
+    echo "⚠️  Change these credentials in production!"
+
     echo ""
     echo "=== Features Available ==="
     echo "✅ Message Browsing & Consuming"
@@ -288,6 +295,7 @@ main() {
     log_success "🎉 Quick Deployment Completed Successfully!"
     echo ""
     echo "🌐 Access your application at: https://$HOSTNAME"
+    echo "🔐 Login with: admin / admin123"
     echo "📚 Check the documentation for usage instructions"
     echo ""
 }

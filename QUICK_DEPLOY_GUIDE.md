@@ -132,6 +132,14 @@ export NAMESPACE="kafka-tool"               # Kubernetes namespace
 - ✅ **Topic Management** - Create and manage topics
 - ✅ **Connection Management** - Multiple Kafka clusters
 
+### 🔐 **Default Login Credentials**
+When you first access the application, you'll be presented with a login page. Use these default credentials:
+
+- **Username**: `admin`
+- **Password**: `admin123`
+
+> ⚠️ **Security Note**: Change these default credentials in production environments by updating the application configuration.
+
 ## 🔧 Advanced Configuration
 
 ### Custom Registry
@@ -303,6 +311,21 @@ kubectl describe pod <pod-name> -n your-namespace
 # Port forward for local testing
 kubectl port-forward service/kafka-web-app-frontend 3000:80 -n your-namespace
 ```
+
+## 🎯 **First Time Access**
+
+After deployment completes successfully:
+
+1. **Open your browser** and navigate to your application URL
+2. **Login with default credentials**:
+   - Username: `admin`
+   - Password: `admin123`
+3. **Start using the application**:
+   - Add your first Kafka connection
+   - Browse topics and messages
+   - Try the edit/delete message features
+
+> 💡 **Tip**: Bookmark your application URL for easy access!
 
 ---
 

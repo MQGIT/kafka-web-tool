@@ -185,6 +185,14 @@ Both deployment methods provide the complete feature set:
 - **Error Handling** - Comprehensive user feedback
 - **Loading States** - Visual feedback during operations
 
+### 🔐 **Default Access Credentials**
+Both deployment methods create an application with default login credentials:
+
+- **Username**: `admin`
+- **Password**: `admin123`
+
+> ⚠️ **Important**: Change these default credentials in production environments!
+
 ---
 
 ## 📚 Documentation Structure
@@ -276,5 +284,17 @@ Choose your deployment approach based on your needs:
 - **🔨 Want to customize or develop?** → Use **Build & Deploy**
 - **🏭 Production deployment?** → Use **Quick Deploy** with official images
 - **🧪 Testing changes?** → Use **Build & Deploy** with your modifications
+
+## 🎯 **After Deployment**
+
+Once your deployment completes successfully:
+
+1. **Access the application** at your configured hostname
+2. **Login with default credentials**:
+   - Username: `admin`
+   - Password: `admin123`
+3. **Start managing your Kafka clusters**!
+
+> 💡 **First Steps**: Add a Kafka connection, browse some topics, and try the edit/delete message features!
 
 Both scripts are designed to be user-friendly, well-documented, and production-ready. Happy deploying! 🚀

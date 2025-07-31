@@ -276,6 +276,13 @@ check_deployment() {
     echo "Backend API: https://$HOSTNAME/api/v1"
     echo "Health Check: https://$HOSTNAME/api/v1/health"
     echo "API Documentation: https://$HOSTNAME/api/v1/swagger-ui.html"
+
+    echo ""
+    echo "=== Default Login Credentials ==="
+    echo "Username: admin"
+    echo "Password: admin123"
+    echo ""
+    echo "⚠️  Change these credentials in production!"
     
     log_success "Deployment completed successfully!"
 }
@@ -299,6 +306,7 @@ main() {
     log_success "Deployment completed! 🚀"
     echo ""
     echo "Access your application at: https://$HOSTNAME"
+    echo "Login with: admin / admin123"
 }
 
 # Deploy using latest images (skip build)

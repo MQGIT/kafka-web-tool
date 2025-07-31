@@ -178,6 +178,14 @@ The script uses Docker BuildX for:
 - **Networking**: Services, Ingress with custom hostname
 - **Configuration**: Auto-configured for new namespace
 
+### 🔐 **Default Login Credentials**
+Your deployed application will have a login page. Use these default credentials:
+
+- **Username**: `admin`
+- **Password**: `admin123`
+
+> ⚠️ **Security Note**: Change these credentials in production by updating the application configuration.
+
 ## 🔄 Development Workflows
 
 ### Feature Development
@@ -431,6 +439,21 @@ elif [ "$BRANCH" = "develop" ]; then
 fi
 ./build-deploy.sh
 ```
+
+## 🎯 **First Time Access**
+
+After your build and deployment completes:
+
+1. **Access your application** at the configured hostname
+2. **Login with default credentials**:
+   - Username: `admin`
+   - Password: `admin123`
+3. **Test your changes**:
+   - Verify your modifications work as expected
+   - Test the edit/delete message functionality
+   - Check any custom features you've added
+
+> 💡 **Development Tip**: Use browser developer tools to debug frontend changes and check the backend API responses.
 
 ---
 

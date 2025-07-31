@@ -314,6 +314,15 @@ export BUILD_TAG="dev-$(date +%Y%m%d)"
 docker-compose up -d
 ```
 
+## 🔐 **Default Login Credentials**
+
+When you first access the application, use these default credentials:
+
+- **Username**: `admin`
+- **Password**: `admin123`
+
+> ⚠️ **Security Note**: Change these default credentials in production environments by updating the application configuration.
+
 ### **Production (Kubernetes)**
 ```bash
 helm install kafka-web-app ./helm/kafka-web-app
